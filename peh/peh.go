@@ -6,21 +6,31 @@ import (
 	"reflect"
 )
 
+const (
+	Request  = "REQ"
+	Response = "RESP"
+)
+
 type PehEngine struct {
 	ctx      context.Context
 	handlers []interface{}
 	req      interface{}
 	resp     interface{}
 	err      error
+	paramMap map[string]interface{}
 }
 
 func NewPehEngine(ctx context.Context, req interface{}, resp interface{}) *PehEngine {
-	return &PehEngine{
+
+	peh := &PehEngine{
 		ctx:      ctx,
 		req:      req,
 		resp:     resp,
 		handlers: make([]interface{}, 0),
 	}
+	peh.initParamMap()
+
+	return peh
 }
 
 func (peh *PehEngine) AddHandlers(handlers []interface{}) {
@@ -45,6 +55,12 @@ func (peh *PehEngine) Run() (interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+func (peh *PehEngine) initParamMap() {
+	peh.paramMap = make(map[string]interface{}, 2)
+	peh.paramMap[Request] = peh.req
+	peh.paramMap[Response] = peh.resp
 }
 
 func (peh *PehEngine) checkStruct() {
